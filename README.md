@@ -113,30 +113,56 @@ You can change the theme on the fly using the built-in script:
 
 ### NixOS (via home-manager)
 
-This repo provides a home-manager module. Add it to your `/etc/nixos/flake.nix`:
+This repo provides a home-manager module. Integrate it into your NixOS config:
+
+**1. Create `/etc/nixos/hypr.nix`** — system-level Hyprland config:
+
+```bash
+sudo cp examples/hypr.nix /etc/nixos/hypr.nix
+```
+
+This sets up Hyprland, Ly display manager, Wayland packages, portal, and polkit agent.
+
+**2. Update `/etc/nixos/flake.nix`** — add inputs and home-manager module:
 
 ```nix
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    home-manager.url = "github:nix-community/home-manager";
+
+    # Your existing inputs ...
+
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     hyprland-dots.url = "github:aadityapageni/hyprland-dots";
   };
 
-  outputs = { home-manager, hyprland-dots, ... }: {
-    homeConfigurations."wakizu" = home-manager.lib.homeManagerConfiguration {
+  outputs = { self, nixpkgs, home-manager, hyprland-dots, ... }@inputs: {
+    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
+      specialArgs = { inherit inputs; };
       modules = [
-        hyprland-dots.homeManagerModules.default
+        ./configuration.nix
+        ./hypr.nix
+        home-manager.nixosModules.home-manager
         {
-          dotfiles = {
-            enable = true;
-            theme = "minimal";
-            useQuickshell = true;
-          };
-          home = {
-            username = "wakizu";
-            homeDirectory = "/home/wakizu";
-            stateVersion = "24.11";
+          home-manager = {
+            useGlobalPkgs = true;
+            useUserPackages = true;
+            users.wakizu = {
+              imports = [ hyprland-dots.homeManagerModules.default ];
+              dotfiles = {
+                enable = true;
+                theme = "minimal";
+                useQuickshell = true;
+              };
+              home = {
+                username = "wakizu";
+                homeDirectory = "/home/wakizu";
+                stateVersion = "25.11";
+              };
+            };
           };
         }
       ];
@@ -145,6 +171,18 @@ This repo provides a home-manager module. Add it to your `/etc/nixos/flake.nix`:
 }
 ```
 
-See `examples/nixos-flake.nix` for a complete NixOS + home-manager integration example.
+**3. Remove GNOME import** — edit `configuration.nix` and remove `./gnome.nix` from `imports` (or keep both if you want to switch between them).
 
-> **Note**: Requires `nixpkgs.config.allowUnfree = true` for `asusctl`, `supergfxctl`, etc. System-level packages (Hyprland, drivers, services) should be declared in your NixOS config, not in this module.
+**4. Deploy:**
+
+```bash
+sudo nixos-rebuild switch --flake /etc/nixos#nixos
+```
+
+Nix will automatically fetch and lock the new inputs. On next boot, Ly login → select Hyprland session.
+
+After reboot, Ly will present a login prompt. Log in and Hyprland starts automatically.
+
+See `examples/nixos-flake.nix` for the full reference.
+
+> **Note**: Home-manager handles user-level configs (bash/fish prompts, editor themes, etc.) and dotfiles (hypr, quickshell, tofi). System-level packages (Hyprland, drivers, services) go in `hypr.nix` or `configuration.nix`. Requires `nixpkgs.config.allowUnfree = true` for `asusctl`, `supergfxctl`, etc.

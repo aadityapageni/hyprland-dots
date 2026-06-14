@@ -1,58 +1,37 @@
 # Place this in /etc/nixos/flake.nix
-# It references this repo (hyprland-dots) for user config,
-# and manages system-level stuff directly.
+# Integrates hyprland-dots (home-manager module) with your existing NixOS config.
 #
 # Usage:
 #   sudo nixos-rebuild switch --flake /etc/nixos#nixos
 {
-  description = "NixOS system configuration";
+  description = "NixOS + Hyprland";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+
+    # Your existing inputs
+    helium.url = "gitlab:ntgn/helium-flake";
+    nixos-conf-editor.url = "github:snowfallorg/nixos-conf-editor";
+    nix-software-center.url = "github:snowfallorg/nix-software-center";
+    zen-browser.url = "github:youwen5/zen-browser-flake";
+    zen-browser.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Home-manager + dotfiles
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     hyprland-dots = {
-      # Local path for development, or use the GitHub URL for production
       url = "github:aadityapageni/hyprland-dots";
-      # url = "path:/home/wakizu/home-manager/dotfiles";  # local override
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, hyprland-dots, ... }: let
-    system = "x86_64-linux";
-    pkgs = nixpkgs.legacyPackages.${system};
-  in {
-    nixosConfigurations."nixos" = nixpkgs.lib.nixosSystem {
-      inherit system;
+  outputs = { self, nixpkgs, home-manager, hyprland-dots, ... }@inputs: {
+    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
+      specialArgs = { inherit inputs; };
       modules = [
-        ./configuration.nix  # your existing NixOS config
-
-        # System-level Hyprland setup
-        ({ pkgs, ... }: {
-          programs.hyprland = {
-            enable = true;
-            withUWSM = true;
-          };
-
-          # System packages (not user-specific)
-          environment.systemPackages = with pkgs; [
-            hyprlock hyprpaper hyprsunset
-            brightnessctl
-            networkmanager
-            bluez bluez-tools
-            asusctl supergfxctl rog-control-center
-            ryzenadj
-            foot
-          ];
-
-          services.dbus.enable = true;
-          hardware.bluetooth.enable = true;
-          networking.networkmanager.enable = true;
-
-          nixpkgs.config.allowUnfree = true;
-        })
+        ./configuration.nix
+        ./hypr.nix
 
         # Home-manager as a NixOS module
         home-manager.nixosModules.home-manager
@@ -60,7 +39,7 @@
           home-manager = {
             useGlobalPkgs = true;
             useUserPackages = true;
-            users."wakizu" = {
+            users.wakizu = {
               imports = [ hyprland-dots.homeManagerModules.default ];
               dotfiles = {
                 enable = true;
@@ -70,7 +49,7 @@
               home = {
                 username = "wakizu";
                 homeDirectory = "/home/wakizu";
-                stateVersion = "24.11";
+                stateVersion = "25.11";
               };
             };
           };

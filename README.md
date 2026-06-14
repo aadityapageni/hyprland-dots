@@ -84,6 +84,80 @@ You can change the theme on the fly using the built-in script:
 - `amd_s2idle.py`: Advanced AMD debugging script for suspend issues.
 - `gacp`: Fish alias to quickly add, commit, and push updates.
 
+## ⌨️ Keyboard Shortcuts
+
+All shortcuts use <kbd>SUPER</kbd> (Windows/Meta key) unless noted.
+
+### Launchers & Apps
+
+| Key | Action |
+|-----|--------|
+| <kbd>SUPER</kbd> + <kbd>Q</kbd> | Open terminal (footclient) |
+| <kbd>SUPER</kbd> + <kbd>E</kbd> | File manager (yazi via foot) |
+| <kbd>SUPER</kbd> + <kbd>W</kbd> | Open browser (Zen) |
+| <kbd>SUPER</kbd> + <kbd>R</kbd> | App launcher (Quickshell) |
+| <kbd>SUPER</kbd> + <kbd>O</kbd> | Open Obsidian notes |
+| <kbd>SUPER</kbd> + <kbd>V</kbd> | Clipboard manager (Quickshell) |
+| <kbd>SUPER</kbd> + <kbd>Z</kbd> | Control Center (Quickshell) |
+| <kbd>SUPER</kbd> + <kbd>T</kbd> | Theme switcher (Quickshell) |
+| <kbd>SUPER</kbd> + <kbd>N</kbd> | Power menu (Quickshell) |
+| <kbd>SUPER</kbd> + <kbd>SHIFT</kbd> + <kbd>E</kbd> | Nautilus file manager |
+| <kbd>F6</kbd> | Screenshot region (grim+slurp) |
+| <kbd>XF86Launch1</kbd> | ROG Control Center |
+
+### Window Management
+
+| Key | Action |
+|-----|--------|
+| <kbd>SUPER</kbd> + <kbd>C</kbd> | Close active window |
+| <kbd>SUPER</kbd> + <kbd>F</kbd> | Toggle fullscreen |
+| <kbd>SUPER</kbd> + <kbd>M</kbd> | Exit Hyprland |
+| <kbd>SUPER</kbd> + <kbd>P</kbd> | Toggle pseudo-tiling |
+| <kbd>SUPER</kbd> + <kbd>J</kbd> | Toggle split layout |
+| <kbd>SUPER</kbd> + <kbd>SHIFT</kbd> + <kbd>Space</kbd> | Toggle float + resize + center |
+| <kbd>SUPER</kbd> + <kbd>B</kbd> | Toggle battery saver (disables animations) |
+| <kbd>SUPER</kbd> + <kbd>A</kbd> | Pack workspaces (re-number to 1,2,3…) |
+| <kbd>mouse:277</kbd> | Close window (side button) |
+
+### Focus & Movement
+
+| Key | Action |
+|-----|--------|
+| <kbd>SUPER</kbd> + <kbd>←→↑↓</kbd> | Move focus between windows |
+| <kbd>SUPER</kbd> + <kbd>SHIFT</kbd> + <kbd>←→↑↓</kbd> | Move window in direction |
+| <kbd>ALT</kbd> + <kbd>←→↑↓</kbd> | Resize window (hold to repeat) |
+| <kbd>SUPER</kbd> + <kbd>mouse:272</kbd> | Drag window |
+| <kbd>SUPER</kbd> + <kbd>mouse:273</kbd> | Resize window |
+
+### Workspaces
+
+| Key | Action |
+|-----|--------|
+| <kbd>SUPER</kbd> + <kbd>1–0</kbd> | Switch to workspace 1–10 |
+| <kbd>SUPER</kbd> + <kbd>SHIFT</kbd> + <kbd>1–0</kbd> | Move window to workspace 1–10 |
+| <kbd>SUPER</kbd> + <kbd>Space</kbd> | Focus empty workspace |
+| <kbd>SUPER</kbd> + <kbd>S</kbd> | Toggle special workspace (magic) |
+| <kbd>SUPER</kbd> + <kbd>SHIFT</kbd> + <kbd>S</kbd> | Move window to special workspace |
+| <kbd>SUPER</kbd> + <kbd>scroll</kbd> | Cycle through workspaces |
+
+### Media & Hardware
+
+| Key | Action |
+|-----|--------|
+| <kbd>XF86AudioRaiseVolume</kbd> | Volume up (shows OSD) |
+| <kbd>XF86AudioLowerVolume</kbd> | Volume down (shows OSD) |
+| <kbd>XF86AudioMute</kbd> | Toggle mute (shows OSD) |
+| <kbd>XF86AudioMicMute</kbd> | Toggle mic mute |
+| <kbd>XF86MonBrightnessUp</kbd> | Brightness up (shows OSD) |
+| <kbd>XF86MonBrightnessDown</kbd> | Brightness down (shows OSD) |
+| <kbd>XF86AudioNext/Pause/Play/Prev</kbd> | Media playback control |
+| <kbd>SUPER</kbd> + <kbd>XF86AudioRaiseVolume</kbd> | Next track |
+| <kbd>SUPER</kbd> + <kbd>XF86AudioLowerVolume</kbd> | Previous track |
+| <kbd>SUPER</kbd> + <kbd>XF86AudioMicMute</kbd> | Restart Spotify |
+| <kbd>SUPER</kbd> + <kbd>F12</kbd> | Lock screen |
+| <kbd>SUPER</kbd> + <kbd>SHIFT</kbd> + <kbd>F12</kbd> | Screen off (brightness 0) |
+| <kbd>Lid Switch</kbd> | Lock on lid close/open |
+
 ## ⚙️ Structure
 
 ```text

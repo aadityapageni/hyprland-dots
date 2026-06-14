@@ -103,10 +103,48 @@ You can change the theme on the fly using the built-in script:
 ```
 
 ## 🚀 Installation
-*(Assuming Arch Linux / Pacman-based distribution)*
 
+### Arch Linux
 1. Ensure the core packages are installed (Hyprland, Quickshell, Fish, Tofi, Kitty, Fastfetch).
 2. Clone this repository into your `~/.config` or use the included `ricesync` script to sync the dotfiles.
 3. Reload Hyprland or log out and log back in.
 
 > **Note**: This config relies on certain system tools like `brightnessctl`, `playerctl`, `nmcli` (NetworkManager), `bluetoothctl`, `wpctl` (WirePlumber), and `supergfxctl`. Make sure you have them installed for the Control Center to function fully.
+
+### NixOS (via home-manager)
+
+This repo provides a home-manager module. Add it to your `/etc/nixos/flake.nix`:
+
+```nix
+{
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    home-manager.url = "github:nix-community/home-manager";
+    hyprland-dots.url = "github:aadityapageni/hyprland-dots";
+  };
+
+  outputs = { home-manager, hyprland-dots, ... }: {
+    homeConfigurations."wakizu" = home-manager.lib.homeManagerConfiguration {
+      modules = [
+        hyprland-dots.homeManagerModules.default
+        {
+          dotfiles = {
+            enable = true;
+            theme = "minimal";
+            useQuickshell = true;
+          };
+          home = {
+            username = "wakizu";
+            homeDirectory = "/home/wakizu";
+            stateVersion = "24.11";
+          };
+        }
+      ];
+    };
+  };
+}
+```
+
+See `examples/nixos-flake.nix` for a complete NixOS + home-manager integration example.
+
+> **Note**: Requires `nixpkgs.config.allowUnfree = true` for `asusctl`, `supergfxctl`, etc. System-level packages (Hyprland, drivers, services) should be declared in your NixOS config, not in this module.

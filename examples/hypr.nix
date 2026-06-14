@@ -40,12 +40,11 @@
     _JAVA_AWT_WM_NONREPARENTING = "1";
   };
 
-  # Hyprland portal
+  # Hyprland portal (config.common.default is already set in configuration.nix)
   xdg.portal = {
     enable = true;
     extraPortals = [ pkgs.xdg-desktop-portal-hyprland ];
     configPackages = [ pkgs.hyprland ];
-    config.common.default = "hyprland";
   };
 
   # Polkit agent

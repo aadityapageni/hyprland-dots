@@ -185,58 +185,73 @@ All shortcuts use <kbd>SUPER</kbd> (Windows/Meta key) unless noted.
 
 > **Note**: This config relies on certain system tools like `brightnessctl`, `playerctl`, `nmcli` (NetworkManager), `bluetoothctl`, `wpctl` (WirePlumber), and `supergfxctl`. Make sure you have them installed for the Control Center to function fully.
 
-### NixOS (via home-manager)
+### NixOS (standalone home-manager)
 
-This repo provides a home-manager module. Integrate it into your NixOS config:
+This repo provides a home-manager module. The recommended setup keeps **NixOS system config** separate from **home-manager user config**.
 
-**1. Create `/etc/nixos/hypr.nix`** — system-level Hyprland config:
+**NixOS side** — `/etc/nixos/`
+
+1. Create `/etc/nixos/hypr.nix` — system-level Hyprland + Ly + packages:
 
 ```bash
 sudo cp examples/hypr.nix /etc/nixos/hypr.nix
 ```
 
-This sets up Hyprland, Ly display manager, Wayland packages, portal, and polkit agent.
-
-**2. Update `/etc/nixos/flake.nix`** — add inputs and home-manager module:
+2. Update `/etc/nixos/flake.nix` — add `./hypr.nix` to modules (keep it pure NixOS, no home-manager):
 
 ```nix
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    # ... your existing inputs
+  };
 
-    # Your existing inputs ...
-
-    home-manager = {
-      url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
+  outputs = { self, nixpkgs, ... }@inputs: {
+    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
+      specialArgs = { inherit inputs; };
+      modules = [ ./configuration.nix ./hypr.nix ];
     };
+  };
+}
+```
+
+3. Deploy NixOS:
+
+```bash
+sudo nixos-rebuild switch --flake /etc/nixos#nixos
+```
+
+**Home-manager side** — `~/home-manager/`
+
+4. Update `/home/wakizu/home-manager/flake.nix` — reference this repo:
+
+```nix
+{
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    home-manager.url = "github:nix-community/home-manager";
     hyprland-dots.url = "github:aadityapageni/hyprland-dots";
   };
 
-  outputs = { self, nixpkgs, home-manager, hyprland-dots, ... }@inputs: {
-    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-      specialArgs = { inherit inputs; };
+  outputs = { home-manager, hyprland-dots, ... }: let
+    pkgs = import nixpkgs {
+      system = "x86_64-linux";
+      config.allowUnfree = true;
+    };
+  in {
+    homeConfigurations.wakizu = home-manager.lib.homeManagerConfiguration {
+      inherit pkgs;
       modules = [
-        ./configuration.nix
-        ./hypr.nix
-        home-manager.nixosModules.home-manager
-        {
-          home-manager = {
-            useGlobalPkgs = true;
-            useUserPackages = true;
-            users.wakizu = {
-              imports = [ hyprland-dots.homeManagerModules.default ];
-              dotfiles = {
-                enable = true;
-                theme = "minimal";
-                useQuickshell = true;
-              };
-              home = {
-                username = "wakizu";
-                homeDirectory = "/home/wakizu";
-                stateVersion = "25.11";
-              };
-            };
+        hyprland-dots.homeManagerModules.default
+        { dotfiles = {
+            enable = true;
+            theme = "minimal";
+            useQuickshell = true;
+          };
+          home = {
+            username = "wakizu";
+            homeDirectory = "/home/wakizu";
+            stateVersion = "25.11";
           };
         }
       ];
@@ -245,18 +260,10 @@ This sets up Hyprland, Ly display manager, Wayland packages, portal, and polkit 
 }
 ```
 
-**3. Remove GNOME import** — edit `configuration.nix` and remove `./gnome.nix` from `imports` (or keep both if you want to switch between them).
-
-**4. Deploy:**
+5. Deploy home-manager:
 
 ```bash
-sudo nixos-rebuild switch --flake /etc/nixos#nixos
+home-manager switch --flake /home/wakizu/home-manager#wakizu
 ```
 
-Nix will automatically fetch and lock the new inputs. On next boot, Ly login → select Hyprland session.
-
-After reboot, Ly will present a login prompt. Log in and Hyprland starts automatically.
-
-See `examples/nixos-flake.nix` for the full reference.
-
-> **Note**: Home-manager handles user-level configs (bash/fish prompts, editor themes, etc.) and dotfiles (hypr, quickshell, tofi). System-level packages (Hyprland, drivers, services) go in `hypr.nix` or `configuration.nix`. Requires `nixpkgs.config.allowUnfree = true` for `asusctl`, `supergfxctl`, etc.
+> **Note**: System-level packages (Hyprland, drivers, services) go in `hypr.nix` / `configuration.nix`. User configs (hypr, quickshell, tofi, scripts) go in the home-manager module. Requires `nixpkgs.config.allowUnfree = true`.

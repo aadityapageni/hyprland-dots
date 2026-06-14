@@ -1,0 +1,13 @@
+# Nix
+result
+result-*
+flake.lock
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editor
+*.swp
+*.swo
+*~
